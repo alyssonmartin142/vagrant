@@ -1,0 +1,20 @@
+- hosts: all
+  become: yes
+  tasks:
+    - name: Instalar pacotes obrigatórios
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        name:
+          [
+            "apt-transport-https",
+            "ca-certificates",
+            "curl",
+            "gnupg2",
+            "lsb-release",
+          ]
+        state: latest
+    - name: Instalar docker
+      shell: curl -fsSL https://get.docker.com | bash
+    - name: Adicionar o usuário atual ao grupo docker
+      shell: usermod -aG docker $USER

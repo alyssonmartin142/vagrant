@@ -1,0 +1,30 @@
+Vagrant.configure("2") do |config|
+  config.vm.box = "ubuntu/focal64"
+
+  config.vm.define "dockerlab" do |dockerlab|
+    # ansidockerlabble.memory = 1500
+    # dockerlab.cpus = 2
+    dockerlab.vm.network "forwarded_port", guest: 80, host:8089
+
+    dockerlab.vm.network "public_network", ip: "192.168.0.161", bridge: "wlp2s0"
+
+    # dockerlab.vm.synced_folder "~/labs", "/labs"
+    # dockerlab.vm.synced_folder "~/integrado", "/integrado"
+    dockerlab.vm.synced_folder "./configs", "/configs"
+    dockerlab.vm.synced_folder ".", "/vagrant", disabled: true
+
+    dockerlab.vm.provision "shell", inline: <<-SHELL
+      cat /configs/authorized_keys >> .ssh/authorized_keys
+    SHELL
+  end
+
+  config.vm.define "ansible" do |ansible|
+    # ansible.memory = 500
+    # ansible.cpus = 1
+    ansible.vm.network "public_network", ip: "192.168.0.160", bridge: "wlp2s0"
+    ansible.vm.synced_folder ".", "/vagrant", disabled: true
+    ansible.vm.synced_folder "./configs", "/configs"
+
+    ansible.vm.provision "shell", path: "./configs/script/ansible.sh"
+  end
+end
